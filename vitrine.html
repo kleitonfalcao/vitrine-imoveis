@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Imóvel | Vitrine Corretor</title>
+    <title>Vitrine de Imóvel</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #1e3a8a;
-            --secondary: #2563eb;
             --success: #16a34a;
             --bg: #f1f5f9;
             --text: #1e293b;
         }
 
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
             margin: 0; 
             background: var(--bg); 
             color: var(--text); 
@@ -45,7 +44,6 @@
             font-size: 24px; 
             margin: 0 0 10px 0; 
             color: var(--primary); 
-            line-height: 1.2;
         }
 
         .price { 
@@ -65,7 +63,6 @@
             border-radius: 12px; 
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
         }
 
         .desc { 
@@ -89,33 +86,27 @@
             background: #25D366; 
             color: white; 
             text-decoration: none; 
-            padding: 16px 40px; 
+            padding: 16px; 
             border-radius: 50px; 
             font-weight: bold; 
             display: block; 
             font-size: 18px;
-            transition: transform 0.2s;
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-        }
-
-        .btn-whats:active {
-            transform: scale(0.98);
         }
 
         #loading {
             padding: 50px;
             text-align: center;
             font-weight: bold;
-            color: var(--primary);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="loading">Carregando detalhes do imóvel...</div>
+        <div id="loading">Carregando imóvel...</div>
         
         <div id="main-content" style="display:none;">
-            <img id="foto" src="" alt="Foto do Imóvel">
+            <img id="foto" src="" alt="Foto">
             <div class="content">
                 <h1 id="titulo"></h1>
                 <div class="price" id="preco"></div>
@@ -130,17 +121,14 @@
             </div>
             
             <div class="footer">
-                <a id="link-whats" href="#" class="btn-whats">Quero mais informações</a>
+                <a id="link-whats" href="#" target="_blank" class="btn-whats">Falar com o Corretor</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Configurações do Supabase
         const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
-        
-        // Inicializa o cliente
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function carregarImovel() {
@@ -148,12 +136,11 @@
             const id = params.get('id');
 
             if (!id) {
-                document.getElementById('loading').innerText = "ID do imóvel não identificado.";
+                document.getElementById('loading').innerText = "Imóvel não encontrado.";
                 return;
             }
 
             try {
-                // Busca no banco de dados
                 const { data, error } = await _supabase
                     .from('imoveis')
                     .select('*')
@@ -161,33 +148,36 @@
                     .single();
 
                 if (error || !data) {
-                    document.getElementById('loading').innerText = "Imóvel não encontrado ou removido.";
+                    document.getElementById('loading').innerText = "Imóvel não encontrado.";
                     return;
                 }
 
-                // Preenche os dados na tela
+                // Preencher dados básicos
                 document.getElementById('foto').src = data.foto_url;
                 document.getElementById('titulo').innerText = data.titulo;
                 document.getElementById('preco').innerText = data.preco;
                 document.getElementById('descricao').innerText = data.descricao;
-                
                 document.getElementById('area').innerText = `🔹 ${data.area}m²`;
                 document.getElementById('quartos').innerText = `🔹 ${data.quartos} Qts`;
                 document.getElementById('vagas').innerText = `🔹 ${data.vagas} Vagas`;
 
-                // Configura o WhatsApp (removemos caracteres não numéricos do corretor_id caso seja e-mail)
-                // Se o corretor_id for e-mail, o botão de Whats vai precisar de um ajuste manual 
-                // ou usar o link padrão do sistema.
-                const linkMsg = encodeURIComponent(`Olá! Vi o anúncio "${data.titulo}" na sua vitrine e gostaria de mais informações.`);
-                document.getElementById('link-whats').href = `https://wa.me/?text=${linkMsg}`;
+                // LÓGICA DO BOTÃO WHATSAPP DO CORRETOR
+                if (data.corretor_whats) {
+                    // Limpa o número: remove espaços, traços e parênteses
+                    let num = data.corretor_whats.replace(/\D/g, '');
+                    
+                    // Garante que tenha o código do país (55 para Brasil)
+                    if (num.length <= 11) num = '55' + num;
 
-                // Mostra o conteúdo e esconde o loading
+                    const mensagem = encodeURIComponent(`Olá! Vi o anúncio "${data.titulo}" na sua vitrine e gostaria de mais informações.`);
+                    document.getElementById('link-whats').href = `https://wa.me/${num}?text=${mensagem}`;
+                }
+
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
 
             } catch (e) {
-                console.error(e);
-                document.getElementById('loading').innerText = "Erro ao carregar os dados.";
+                document.getElementById('loading').innerText = "Erro na conexão.";
             }
         }
 

@@ -3,125 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vitrine de Imóvel</title>
+    <title>Vitrine Imobiliária</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #1e3a8a;
-            --success: #16a34a;
-            --bg: #f1f5f9;
-            --text: #1e293b;
-        }
-
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text); 
-            line-height: 1.6; 
-        }
-
-        .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            background: #fff; 
-            min-height: 100vh; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-        }
-
-        img#foto { 
-            width: 100%; 
-            height: 350px; 
-            object-fit: cover; 
-            display: block;
-        }
-
-        .content { 
-            padding: 25px; 
-        }
-
-        h1 { 
-            font-size: 24px; 
-            margin: 0 0 10px 0; 
-            color: var(--primary); 
-        }
-
-        .price { 
-            font-size: 28px; 
-            color: var(--success); 
-            font-weight: 800; 
-            margin-bottom: 20px; 
-        }
-
-        .info-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; 
-            margin-bottom: 25px; 
-            background: #f8fafc; 
-            padding: 15px; 
-            border-radius: 12px; 
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .desc { 
-            white-space: pre-wrap; 
-            font-size: 16px; 
-            color: #475569; 
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        .footer { 
-            position: sticky;
-            bottom: 0;
-            background: white;
-            padding: 20px; 
-            text-align: center; 
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .btn-whats { 
-            background: #25D366; 
-            color: white; 
-            text-decoration: none; 
-            padding: 16px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            display: block; 
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-        }
-
-        #loading {
-            padding: 50px;
-            text-align: center;
-            font-weight: bold;
-        }
+        :root { --primary: #1e3a8a; --success: #16a34a; --bg: #f1f5f9; --text: #1e293b; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding-bottom: 100px; }
+        img#foto { width: 100%; height: 350px; object-fit: cover; display: block; }
+        .content { padding: 25px; }
+        h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; }
+        .price { font-size: 28px; color: var(--success); font-weight: 800; margin-bottom: 20px; }
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; font-weight: bold; }
+        .desc { white-space: pre-wrap; font-size: 16px; color: #475569; border-top: 1px solid #eee; padding-top: 20px; }
+        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; background: white; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; box-sizing: border-box; }
+        .btn-whats { background: #25D366; color: white; text-decoration: none; padding: 16px; border-radius: 50px; font-weight: bold; display: block; font-size: 18px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        #loading { padding: 50px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="loading">Carregando imóvel...</div>
-        
+        <div id="loading">Buscando detalhes do imóvel...</div>
         <div id="main-content" style="display:none;">
             <img id="foto" src="" alt="Foto">
             <div class="content">
                 <h1 id="titulo"></h1>
                 <div class="price" id="preco"></div>
-                
                 <div class="info-grid">
                     <div id="area"></div>
                     <div id="quartos"></div>
                     <div id="vagas"></div>
                 </div>
-                
                 <div class="desc" id="descricao"></div>
             </div>
-            
             <div class="footer">
-                <a id="link-whats" href="#" target="_blank" class="btn-whats">Falar com o Corretor</a>
+                <a id="link-whats" href="#" target="_blank" rel="noopener noreferrer" class="btn-whats">Falar com o Corretor</a>
             </div>
         </div>
     </div>
@@ -131,28 +46,13 @@
         const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function carregarImovel() {
+        async function carregar() {
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
+            if (!id) return;
 
-            if (!id) {
-                document.getElementById('loading').innerText = "Imóvel não encontrado.";
-                return;
-            }
-
-            try {
-                const { data, error } = await _supabase
-                    .from('imoveis')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (error || !data) {
-                    document.getElementById('loading').innerText = "Imóvel não encontrado.";
-                    return;
-                }
-
-                // Preencher dados básicos
+            const { data, error } = await _supabase.from('imoveis').select('*').eq('id', id).single();
+            if (data) {
                 document.getElementById('foto').src = data.foto_url;
                 document.getElementById('titulo').innerText = data.titulo;
                 document.getElementById('preco').innerText = data.preco;
@@ -161,27 +61,17 @@
                 document.getElementById('quartos').innerText = `🔹 ${data.quartos} Qts`;
                 document.getElementById('vagas').innerText = `🔹 ${data.vagas} Vagas`;
 
-                // LÓGICA DO BOTÃO WHATSAPP DO CORRETOR
                 if (data.corretor_whats) {
-                    // Limpa o número: remove espaços, traços e parênteses
                     let num = data.corretor_whats.replace(/\D/g, '');
-                    
-                    // Garante que tenha o código do país (55 para Brasil)
-                    if (num.length <= 11) num = '55' + num;
-
-                    const mensagem = encodeURIComponent(`Olá! Vi o anúncio "${data.titulo}" na sua vitrine e gostaria de mais informações.`);
-                    document.getElementById('link-whats').href = `https://wa.me/${num}?text=${mensagem}`;
+                    if (num.length === 11) num = '55' + num;
+                    const msg = encodeURIComponent(`Olá! Vi o imóvel "${data.titulo}" na sua vitrine e gostaria de mais informações.`);
+                    document.getElementById('link-whats').href = `https://wa.me/${num}?text=${msg}`;
                 }
-
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
-
-            } catch (e) {
-                document.getElementById('loading').innerText = "Erro na conexão.";
             }
         }
-
-        carregarImovel();
+        carregar();
     </script>
 </body>
 </html>

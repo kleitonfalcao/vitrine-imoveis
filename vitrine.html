@@ -63,7 +63,7 @@
 
             <div class="mb-10">
                 <h3 class="font-bold text-slate-800 mb-3 border-l-4 border-blue-600 pl-2 uppercase text-xs tracking-wider">Descrição do Imóvel</h3>
-                <div id="imovel-descricao" class="text-slate-600 leading-relaxed text-sm whitespace-pre-line">
+                <div id="imovel-descricao" class="text-slate-600 leading-relaxed text-sm whitespace-pre-line text-justify">
                     ...
                 </div>
             </div>
@@ -75,12 +75,15 @@
                         KF
                     </div>
                     <div>
-                        <p id="corretor-nome" class="font-bold text-base leading-tight">Kleiton Falcão</p>
-                        <p id="corretor-creci" class="text-[10px] text-blue-100 font-medium mb-1">Corretor de Imóveis • CRECI</p>
+                        <p id="corretor-nome" class="font-bold text-base leading-tight">...</p>
+                        <p id="corretor-creci" class="text-[10px] text-blue-100 font-medium mb-1">Corretor de Imóveis</p>
                         
-                        <div class="flex flex-col gap-0.5">
-                            <span id="corretor-whats" class="text-[10px] text-white italic flex items-center gap-1.5 opacity-90">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span id="corretor-whats" class="text-[10px] text-white italic flex items-center gap-1.5 opacity-95 font-medium">
                                 <i class="bi bi-telephone-fill text-[9px] text-blue-200"></i> ...
+                            </span>
+                            <span id="corretor-email" class="text-[10px] text-white italic flex items-center gap-1.5 opacity-95 font-medium border-l border-white/30 pl-3">
+                                <i class="bi bi-envelope-fill text-[9px] text-blue-200"></i> ...
                             </span>
                         </div>
                     </div>
@@ -105,7 +108,7 @@
             const id = urlParams.get('id');
 
             if (!id) {
-                document.body.innerHTML = "<div class='p-10 text-center font-bold'>Imóvel não encontrado.</div>";
+                document.body.innerHTML = "<div class='p-10 text-center font-bold'>Imóvel não encontrado ou link inválido.</div>";
                 return;
             }
 
@@ -117,9 +120,9 @@
                 const dados = await res.json();
                 const imovel = dados[0];
 
-                if (!imovel) throw new Error("Não encontrado");
+                if (!imovel) throw new Error("Imóvel não existe no banco.");
 
-                // 2. Busca dados do Corretor para garantir dados atualizados
+                // 2. Busca dados do Corretor
                 const resCorretor = await fetch(`${SUPABASE_URL}/rest/v1/perfis?email=eq.${imovel.corretor_id}`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
@@ -130,30 +133,40 @@
                 document.getElementById("imovel-foto").src = imovel.foto_url;
                 document.getElementById("imovel-titulo").innerText = imovel.titulo;
                 document.getElementById("imovel-preco").innerText = imovel.preco;
-                document.getElementById("imovel-area").innerText = imovel.area + "m²";
+                document.getElementById("imovel-area").innerText = imovel.area + (imovel.area.includes('m') ? '' : 'm²');
                 document.getElementById("imovel-quartos").innerText = imovel.quartos;
                 document.getElementById("imovel-vagas").innerText = imovel.vagas;
                 document.getElementById("imovel-descricao").innerText = imovel.descricao;
-                document.getElementById("imovel-local").innerText = (corretor.cidade || "Joinville") + ", " + (corretor.estado || "SC");
+                document.getElementById("imovel-local").innerText = (corretor.cidade || "Santa Catarina") + " / " + (corretor.estado || "SC");
 
-                // Dados Corretor
+                // Dados do Corretor no Card
                 document.getElementById("corretor-nome").innerText = corretor.nome || imovel.corretor_nome;
                 document.getElementById("corretor-creci").innerText = `Corretor de Imóveis • CRECI ${corretor.creci || '---'}`;
-                document.getElementById("corretor-whats").innerHTML = `<i class="bi bi-telephone-fill"></i> ${corretor.telefone || imovel.corretor_whats}`;
+                document.getElementById("corretor-whats").innerHTML = `<i class="bi bi-telephone-fill text-blue-200"></i> ${corretor.telefone || imovel.corretor_whats}`;
+                document.getElementById("corretor-email").innerHTML = `<i class="bi bi-envelope-fill text-blue-200"></i> ${corretor.email || imovel.corretor_id}`;
                 
-                // Link WhatsApp
+                // 4. Link do WhatsApp com Mensagem Formatada
                 const whatsFinal = (corretor.telefone || imovel.corretor_whats).replace(/\D/g, '');
-                const msg = encodeURIComponent(`Olá! Vi o imóvel "${imovel.titulo}" na sua vitrine e gostaria de mais informações.`);
+                const urlAtual = window.location.href;
+                
+                // Mensagem com quebras de linha (\n) e negrito (*)
+                const msg = encodeURIComponent(
+                    `Olá! Vi o imóvel "${imovel.titulo}" na sua vitrine.\n\n` +
+                    `📌 *Código:* ID-${imovel.id}\n` +
+                    `🔗 *Link:* ${urlAtual}\n\n` +
+                    `Gostaria de agendar uma visita ou receber mais informações.`
+                );
+
                 document.getElementById("btn-whats-link").href = `https://wa.me/55${whatsFinal}?text=${msg}`;
 
-                // Mostrar Conteúdo
+                // Finaliza carregamento
                 document.getElementById("carregando").style.display = "none";
                 document.getElementById("conteudo").style.display = "block";
-                document.title = imovel.titulo + " - Kleiton Falcão";
+                document.title = imovel.titulo;
 
             } catch (error) {
                 console.error(error);
-                document.getElementById("carregando").innerHTML = "Erro ao carregar imóvel. Verifique o link.";
+                document.getElementById("carregando").innerHTML = "<div class='p-6 text-center text-red-600 font-bold'>Erro ao carregar o imóvel. Certifique-se que o código está correto.</div>";
             }
         }
 

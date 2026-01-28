@@ -3,63 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Imóvel | Curadoria Exclusiva</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <title>Link Imóvel | Exclusive Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary: #0f172a; --accent: #2563eb; --bg: #ffffff;
-            --text: #334155; --serif: 'Lora', serif; --sans: 'Inter', sans-serif;
+            --gold: #c5a059; --dark: #0f172a; --slate: #64748b;
+            --bg: #ffffff; --accent-blue: #2563eb;
         }
 
-        body { margin: 0; padding: 0; background: var(--bg); font-family: var(--sans); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Montserrat', sans-serif; color: var(--dark); line-height: 1.8; }
         
+        /* Loading Refinado */
         #carregando { position: fixed; inset: 0; background: #fff; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-bar { width: 100px; height: 1px; background: #eee; position: relative; overflow: hidden; margin-top: 20px; }
+        .loader-bar::after { content: ''; position: absolute; left: -100%; width: 100%; height: 100%; background: var(--gold); animation: load 1.5s infinite; }
+        @keyframes load { 100% { left: 100%; } }
 
-        .header { padding: 30px 20px; text-align: center; background: #fff; border-bottom: 1px solid #f1f5f9; }
-        .logo { font-family: var(--serif); font-weight: 400; font-size: 22px; letter-spacing: 6px; color: var(--primary); text-transform: uppercase; }
+        /* Header Minimalista */
+        .header { padding: 40px 20px; text-align: center; border-bottom: 1px solid #f8fafc; }
+        .logo { font-family: 'Cinzel', serif; font-size: 20px; letter-spacing: 8px; color: var(--dark); }
 
-        .hero { width: 100%; height: 65vh; background: #e2e8f0; overflow: hidden; position: relative; }
-        #imovel-foto { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease-in; }
+        /* Hero Image */
+        .hero { width: 100%; height: 70vh; background: #f1f5f9; position: relative; }
+        #imovel-foto { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05)); }
 
-        .container { max-width: 650px; margin: 0 auto; padding: 40px 25px; display: none; }
+        /* Content Container */
+        .container { max-width: 800px; margin: 0 auto; padding: 60px 25px; }
+
+        /* Tag Imóvel Parceiro */
+        .curadoria-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 20px; display: block; }
+        .curadoria-tag span { color: var(--slate); font-weight: 300; margin-right: 5px; }
+
+        /* Localização e Título */
+        .location { font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: var(--slate); margin-bottom: 15px; display: block; }
+        h1 { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 48px); margin: 0 0 20px 0; font-weight: 400; color: var(--dark); line-height: 1.1; }
         
-        .badge-container { display: flex; gap: 10px; margin-bottom: 15px; }
-        .badge { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; }
-        .badge-blue { background: #eff6ff; color: #2563eb; }
+        /* Preço com Destaque */
+        .price { font-size: 28px; font-weight: 300; color: var(--dark); margin-bottom: 50px; display: flex; align-items: center; gap: 15px; }
+        .price::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
 
-        .location { text-transform: uppercase; letter-spacing: 2px; font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 8px; display: block; }
-        .location i { color: var(--accent); margin-right: 5px; }
+        /* Grid de Especificações */
+        .specs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 30px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; margin-bottom: 50px; }
+        .spec-item { text-align: center; }
+        .spec-val { display: block; font-family: 'Playfair Display', serif; font-size: 22px; color: var(--dark); }
+        .spec-lab { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); font-weight: 600; }
 
-        h1 { font-family: var(--serif); font-size: 32px; color: var(--primary); margin: 0 0 15px 0; font-weight: 400; line-height: 1.2; }
-        .price { font-family: var(--sans); font-size: 24px; color: var(--primary); margin-bottom: 35px; font-weight: 600; letter-spacing: -1px; }
+        /* Descrição */
+        .desc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 25px; display: block; }
+        .description { font-family: 'Montserrat', sans-serif; font-size: 16px; color: #475569; line-height: 1.9; white-space: pre-line; font-weight: 300; }
 
-        .specs { display: flex; justify-content: space-between; margin-bottom: 40px; padding: 25px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-        .spec-item { text-align: center; flex: 1; }
-        .spec-label { display: block; font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-top: 4px; font-weight: 600; }
-        .spec-value { font-weight: 600; font-size: 18px; color: var(--primary); }
+        /* Card do Corretor */
+        .corretor-box { margin-top: 80px; padding: 40px; background: #fcfcfc; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 25px; border-radius: 4px; }
+        .corretor-img { width: 80px; height: 80px; background: var(--dark); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 28px; }
+        .corretor-info h4 { margin: 0; font-family: 'Playfair Display', serif; font-size: 20px; }
+        .corretor-info p { margin: 5px 0; font-size: 11px; color: var(--slate); letter-spacing: 1px; text-transform: uppercase; }
 
-        .description-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 20px; display: block; border-left: 3px solid var(--accent); padding-left: 10px; }
-        .description { font-size: 16px; color: #475569; margin-bottom: 60px; font-weight: 300; text-align: justify; white-space: pre-line; }
-
-        .corretor-card { background: #f8fafc; border-radius: 12px; padding: 30px; margin-bottom: 120px; display: flex; align-items: center; gap: 20px; border: 1px solid #f1f5f9; }
-        .avatar { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 24px; flex-shrink: 0; }
-        .corretor-info h3 { margin: 0; font-size: 18px; color: var(--primary); }
-        .corretor-info p { margin: 2px 0; font-size: 12px; color: #64748b; }
-        .corretor-creci { font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-
-        .cta-container { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 50; border-top: 1px solid #f1f5f9; }
-        .btn-whats { display: flex; align-items: center; justify-content: center; gap: 10px; background: #2563eb; color: white; text-decoration: none; max-width: 500px; margin: 0 auto; padding: 18px; border-radius: 12px; font-weight: 600; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
-        .btn-whats:active { transform: scale(0.98); }
+        /* CTA WhatsApp Personalizado */
+        .footer-cta { position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 90; border-top: 1px solid #f1f5f9; box-sizing: border-box; }
+        .btn-whatsapp { 
+            display: flex; align-items: center; justify-content: center; gap: 12px; 
+            background: var(--accent-blue); color: #fff; text-decoration: none; 
+            max-width: 450px; margin: 0 auto; padding: 20px; border-radius: 50px; 
+            font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+            transition: all 0.4s ease; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2);
+        }
+        .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
 <body>
 
     <div id="carregando">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8; letter-spacing: 2px; font-weight: 600;">CARREGANDO EXPERIÊNCIA</p>
+        <div class="logo">LINK IMÓVEL</div>
+        <div class="loader-bar"></div>
     </div>
 
     <header class="header">
@@ -67,41 +84,40 @@
     </header>
 
     <div class="hero">
-        <img id="imovel-foto" src="" alt="Destaque do Imóvel">
+        <div class="hero-overlay"></div>
+        <img id="imovel-foto" src="" alt="Property">
     </div>
 
-    <div class="container" id="main-content">
-        <div class="badge-container">
-            <span class="badge badge-blue">Curadoria Kleiton Falcão</span>
-        </div>
-
-        <span class="location"><i class="bi bi-geo-alt-fill"></i><span id="imovel-local">...</span></span>
+    <div class="container" id="main-content" style="display:none;">
+        <span class="curadoria-tag"><span>IMÓVEL PARCEIRO |</span> CURADORIA <span id="corretor-nome-tag">...</span></span>
+        
+        <span class="location"><i class="bi bi-geo-alt"></i> <span id="imovel-local">...</span></span>
         <h1 id="imovel-titulo">...</h1>
         <div class="price" id="imovel-preco">...</div>
 
-        <div class="specs">
-            <div class="spec-item"><span class="spec-value" id="imovel-area">0</span><span class="spec-label">Área Total</span></div>
-            <div class="spec-item"><span class="spec-value" id="imovel-quartos">0</span><span class="spec-label">Dormitórios</span></div>
-            <div class="spec-item"><span class="spec-value" id="imovel-vagas">0</span><span class="spec-label">Vagas</span></div>
+        <div class="specs-grid">
+            <div class="spec-item"><span class="spec-val" id="imovel-area">0</span><span class="spec-lab">M² Privativos</span></div>
+            <div class="spec-item"><span class="spec-val" id="imovel-quartos">0</span><span class="spec-lab">Suítes / Quartos</span></div>
+            <div class="spec-item"><span class="spec-val" id="imovel-vagas">0</span><span class="spec-lab">Vagas</span></div>
         </div>
 
-        <span class="description-title">Sobre este imóvel</span>
+        <span class="desc-label">A Experiência</span>
         <div class="description" id="imovel-descricao">...</div>
 
-        <div class="corretor-card">
-            <div class="avatar" id="corretor-sigla">KF</div>
+        <div class="corretor-box">
+            <div class="corretor-img" id="corretor-sigla">..</div>
             <div class="corretor-info">
-                <span class="corretor-creci" id="corretor-creci">CRECI</span>
-                <h3 id="corretor-nome">...</h3>
-                <p id="corretor-contatos">...</p>
+                <p id="corretor-creci">CRECI ...</p>
+                <h4 id="corretor-nome-card">...</h4>
+                <p id="corretor-cidade-uf">...</p>
             </div>
         </div>
     </div>
 
-    <div class="cta-container">
-        <a href="#" id="btn-whats-link" class="btn-whats">
-            <i class="bi bi-whatsapp text-xl"></i>
-            TENHO INTERESSE NESTE IMÓVEL
+    <div class="footer-cta">
+        <a href="#" id="btn-whats-link" class="btn-whatsapp">
+            <i class="bi bi-whatsapp"></i>
+            SOLICITAR ATENDIMENTO PERSONALIZADO
         </a>
     </div>
 
@@ -109,75 +125,48 @@
         const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
 
-        function gerarSigla(nome) {
-            if(!nome) return "KF";
-            const p = nome.split(" ");
-            return p.length > 1 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase();
-        }
-
-        async function carregarImovel() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            if (!id) {
-                document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Imóvel não encontrado.</div>";
-                return;
-            }
+        async function carregar() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if(!id) return;
 
             try {
-                // 1. Busca o imóvel
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/imoveis?id=eq.${id}`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
-                const imoveis = await res.json();
-                const imovel = imoveis[0];
+                const dados = await res.json();
+                const i = dados[0];
 
-                // 2. Busca o perfil do corretor vinculado
-                const resC = await fetch(`${SUPABASE_URL}/rest/v1/perfis?email=eq.${imovel.corretor_id}`, {
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-                });
-                const perfis = await resC.json();
-                const corretor = perfis[0] || {};
+                // Preenchimento
+                document.getElementById("imovel-foto").src = i.foto_url;
+                document.getElementById("imovel-titulo").innerText = i.titulo;
+                document.getElementById("imovel-preco").innerText = i.preco;
+                document.getElementById("imovel-area").innerText = i.area.replace(/\D/g, "") + "M²";
+                document.getElementById("imovel-quartos").innerText = i.quartos;
+                document.getElementById("imovel-vagas").innerText = i.vagas;
+                document.getElementById("imovel-descricao").innerText = i.descricao;
+                
+                // Localização (Bairro + Cidade/UF)
+                const localStr = `${i.bairro ? i.bairro + ' • ' : ''}${i.cidade}/${i.estado}`;
+                document.getElementById("imovel-local").innerText = localStr;
 
-                // 3. Preenche os campos
-                document.getElementById("imovel-foto").src = imovel.foto_url;
-                document.getElementById("imovel-foto").style.opacity = "1";
-                document.getElementById("imovel-titulo").innerText = imovel.titulo;
-                document.getElementById("imovel-preco").innerText = imovel.preco;
-                document.getElementById("imovel-area").innerText = imovel.area.toLowerCase().includes('m') ? imovel.area : imovel.area + "m²";
-                document.getElementById("imovel-quartos").innerText = imovel.quartos;
-                document.getElementById("imovel-vagas").innerText = imovel.vagas;
-                document.getElementById("imovel-descricao").innerText = imovel.descricao;
+                // Corretor
+                const nomeC = i.corretor_nome || "Consultor Executivo";
+                document.getElementById("corretor-nome-tag").innerText = nomeC.toUpperCase();
+                document.getElementById("corretor-nome-card").innerText = nomeC;
+                document.getElementById("corretor-sigla").innerText = nomeC.substring(0,2).toUpperCase();
+                document.getElementById("corretor-cidade-uf").innerText = `${i.cidade} / ${i.estado}`;
 
-                // LOGICA DE LOCALIZAÇÃO (Onde entra o campo bairro que você criou)
-                const bairro = imovel.bairro ? imovel.bairro + " • " : "";
-                const cidade = imovel.cidade || corretor.cidade || "Santa Catarina";
-                const estado = imovel.estado || corretor.estado || "SC";
-                document.getElementById("imovel-local").innerText = `${bairro}${cidade} / ${estado}`;
-
-                // DADOS DO CORRETOR
-                const nomeC = corretor.nome || imovel.corretor_nome || "Kleiton Falcão";
-                document.getElementById("corretor-nome").innerText = nomeC;
-                document.getElementById("corretor-creci").innerText = `CRECI ${corretor.creci || '---'}`;
-                document.getElementById("corretor-sigla").innerText = gerarSigla(nomeC);
-                document.getElementById("corretor-contatos").innerText = `${corretor.telefone || imovel.corretor_whats} | ${corretor.email || imovel.corretor_id}`;
-
-                // CONFIGURAÇÃO DO BOTÃO WHATSAPP
-                const whats = (corretor.telefone || imovel.corretor_whats || "").replace(/\D/g, '');
-                const msg = encodeURIComponent(`Olá! Vi o imóvel "${imovel.titulo}" no seu Link Imóvel e gostaria de mais informações.\n\nLink: ${window.location.href}`);
+                // WhatsApp Link
+                const whats = i.corretor_whats.replace(/\D/g, '');
+                const msg = encodeURIComponent(`Olá ${nomeC}, gostaria de um atendimento personalizado para o imóvel: ${i.titulo}.\n\nReferência: ${window.location.href}`);
                 document.getElementById("btn-whats-link").href = `https://wa.me/55${whats}?text=${msg}`;
 
-                // MOSTRAR CONTEÚDO
                 document.getElementById("carregando").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
-                document.title = imovel.titulo + " | Link Imóvel";
 
-            } catch (e) {
-                console.error(e);
-                document.getElementById("carregando").innerHTML = "<div style='color:red; padding:20px;'>Erro ao carregar os dados. Verifique sua conexão.</div>";
-            }
+            } catch(e) { console.error(e); }
         }
-
-        carregarImovel();
+        carregar();
     </script>
 </body>
 </html>

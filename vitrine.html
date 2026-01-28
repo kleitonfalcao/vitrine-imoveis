@@ -3,170 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imóvel - Kleiton Falcão</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Link Imóvel | Curadoria Exclusiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        #carregando { display: flex; }
-        #conteudo { display: none; }
+        :root {
+            --primary: #0f172a; --accent: #2563eb; --bg: #ffffff;
+            --text: #334155; --serif: 'Lora', serif; --sans: 'Inter', sans-serif;
+        }
+
+        body { margin: 0; padding: 0; background: var(--bg); font-family: var(--sans); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+        
+        #carregando { position: fixed; inset: 0; background: #fff; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .header { padding: 30px 20px; text-align: center; background: #fff; border-bottom: 1px solid #f1f5f9; }
+        .logo { font-family: var(--serif); font-weight: 400; font-size: 22px; letter-spacing: 6px; color: var(--primary); text-transform: uppercase; }
+
+        .hero { width: 100%; height: 65vh; background: #e2e8f0; overflow: hidden; position: relative; }
+        #imovel-foto { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease-in; }
+
+        .container { max-width: 650px; margin: 0 auto; padding: 40px 25px; display: none; }
+        
+        .badge-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .badge { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; }
+        .badge-blue { background: #eff6ff; color: #2563eb; }
+
+        .location { text-transform: uppercase; letter-spacing: 2px; font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 8px; display: block; }
+        .location i { color: var(--accent); margin-right: 5px; }
+
+        h1 { font-family: var(--serif); font-size: 32px; color: var(--primary); margin: 0 0 15px 0; font-weight: 400; line-height: 1.2; }
+        .price { font-family: var(--sans); font-size: 24px; color: var(--primary); margin-bottom: 35px; font-weight: 600; letter-spacing: -1px; }
+
+        .specs { display: flex; justify-content: space-between; margin-bottom: 40px; padding: 25px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        .spec-item { text-align: center; flex: 1; }
+        .spec-label { display: block; font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-top: 4px; font-weight: 600; }
+        .spec-value { font-weight: 600; font-size: 18px; color: var(--primary); }
+
+        .description-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 20px; display: block; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .description { font-size: 16px; color: #475569; margin-bottom: 60px; font-weight: 300; text-align: justify; white-space: pre-line; }
+
+        .corretor-card { background: #f8fafc; border-radius: 12px; padding: 30px; margin-bottom: 120px; display: flex; align-items: center; gap: 20px; border: 1px solid #f1f5f9; }
+        .avatar { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 24px; flex-shrink: 0; }
+        .corretor-info h3 { margin: 0; font-size: 18px; color: var(--primary); }
+        .corretor-info p { margin: 2px 0; font-size: 12px; color: #64748b; }
+        .corretor-creci { font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        .cta-container { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 50; border-top: 1px solid #f1f5f9; }
+        .btn-whats { display: flex; align-items: center; justify-content: center; gap: 10px; background: #2563eb; color: white; text-decoration: none; max-width: 500px; margin: 0 auto; padding: 18px; border-radius: 12px; font-weight: 600; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+        .btn-whats:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-900">
+<body>
 
-    <div id="carregando" class="fixed inset-0 bg-white z-[100] flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p class="text-slate-500 font-bold animate-pulse">Buscando detalhes do imóvel...</p>
+    <div id="carregando">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8; letter-spacing: 2px; font-weight: 600;">CARREGANDO EXPERIÊNCIA</p>
     </div>
 
-    <div id="conteudo" class="max-w-md mx-auto bg-white min-h-screen pb-28 shadow-2xl relative">
-        
-        <div class="bg-slate-800 text-white text-[10px] py-2 px-4 text-center uppercase tracking-widest font-bold">
-            Imóvel de Parceiro • Curadoria Kleiton Falcão
+    <header class="header">
+        <div class="logo">LINK IMÓVEL</div>
+    </header>
+
+    <div class="hero">
+        <img id="imovel-foto" src="" alt="Destaque do Imóvel">
+    </div>
+
+    <div class="container" id="main-content">
+        <div class="badge-container">
+            <span class="badge badge-blue">Curadoria Kleiton Falcão</span>
         </div>
 
-        <div class="relative h-80 bg-slate-200 flex overflow-hidden">
-            <img id="imovel-foto" src="" class="w-full h-full object-cover">
+        <span class="location"><i class="bi bi-geo-alt-fill"></i><span id="imovel-local">...</span></span>
+        <h1 id="imovel-titulo">...</h1>
+        <div class="price" id="imovel-preco">...</div>
+
+        <div class="specs">
+            <div class="spec-item"><span class="spec-value" id="imovel-area">0</span><span class="spec-label">Área Total</span></div>
+            <div class="spec-item"><span class="spec-value" id="imovel-quartos">0</span><span class="spec-label">Dormitórios</span></div>
+            <div class="spec-item"><span class="spec-value" id="imovel-vagas">0</span><span class="spec-label">Vagas</span></div>
         </div>
 
-        <div class="p-6 bg-white rounded-t-[32px] -mt-10 relative z-10">
-            
-            <div class="flex items-center gap-2 mb-2">
-                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Destaque</span>
-                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Venda</span>
-            </div>
+        <span class="description-title">Sobre este imóvel</span>
+        <div class="description" id="imovel-descricao">...</div>
 
-            <h1 id="imovel-titulo" class="text-2xl font-bold text-slate-800 leading-tight mb-1">...</h1>
-            <p class="flex items-center text-slate-500 text-sm mb-4">
-                <i class="bi bi-geo-alt-fill mr-1 text-blue-600"></i> <span id="imovel-local">Localização</span>
-            </p>
-
-            <div class="mb-6">
-                <span id="imovel-preco" class="text-3xl font-black text-slate-900 font-mono">...</span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 mb-8 border-y py-5 border-slate-100">
-                <div class="text-center">
-                    <span id="imovel-quartos" class="block font-bold text-slate-800 text-lg leading-none">0</span>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">Quartos</span>
-                </div>
-                <div class="text-center border-x border-slate-100">
-                    <span id="imovel-vagas" class="block font-bold text-slate-800 text-lg leading-none">0</span>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">Vagas</span>
-                </div>
-                <div class="text-center">
-                    <span id="imovel-area" class="block font-bold text-slate-800 text-lg leading-none">0m²</span>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">Área</span>
-                </div>
-            </div>
-
-            <div class="mb-10">
-                <h3 class="font-bold text-slate-800 mb-3 border-l-4 border-blue-600 pl-2 uppercase text-xs tracking-wider">Descrição do Imóvel</h3>
-                <div id="imovel-descricao" class="text-slate-600 leading-relaxed text-sm whitespace-pre-line text-justify">
-                    ...
-                </div>
-            </div>
-
-            <div class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-100">
-                <p class="text-[8px] font-bold text-blue-200 uppercase tracking-[0.2em] mb-2">Atendimento Exclusivo</p>
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold text-lg overflow-hidden border-2 border-white/30" id="corretor-sigla">
-                        KF
-                    </div>
-                    <div>
-                        <p id="corretor-nome" class="font-bold text-base leading-tight">...</p>
-                        <p id="corretor-creci" class="text-[10px] text-blue-100 font-medium mb-1">Corretor de Imóveis</p>
-                        
-                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <span id="corretor-whats" class="text-[10px] text-white italic flex items-center gap-1.5 opacity-95 font-medium">
-                                <i class="bi bi-telephone-fill text-[9px] text-blue-200"></i> ...
-                            </span>
-                            <span id="corretor-email" class="text-[10px] text-white italic flex items-center gap-1.5 opacity-95 font-medium border-l border-white/30 pl-3">
-                                <i class="bi bi-envelope-fill text-[9px] text-blue-200"></i> ...
-                            </span>
-                        </div>
-                    </div>
-                </div>
+        <div class="corretor-card">
+            <div class="avatar" id="corretor-sigla">KF</div>
+            <div class="corretor-info">
+                <span class="corretor-creci" id="corretor-creci">CRECI</span>
+                <h3 id="corretor-nome">...</h3>
+                <p id="corretor-contatos">...</p>
             </div>
         </div>
+    </div>
 
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-slate-100 max-w-md mx-auto z-50">
-            <a id="btn-whats-link" href="#" target="_blank" class="bg-green-500 hover:bg-green-600 text-white w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 text-lg">
-                <i class="bi bi-whatsapp"></i>
-                Tenho interesse neste imóvel
-            </a>
-        </div>
+    <div class="cta-container">
+        <a href="#" id="btn-whats-link" class="btn-whats">
+            <i class="bi bi-whatsapp text-xl"></i>
+            TENHO INTERESSE NESTE IMÓVEL
+        </a>
     </div>
 
     <script>
         const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
 
+        function gerarSigla(nome) {
+            if(!nome) return "KF";
+            const p = nome.split(" ");
+            return p.length > 1 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase();
+        }
+
         async function carregarImovel() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-
             if (!id) {
-                document.body.innerHTML = "<div class='p-10 text-center font-bold'>Imóvel não encontrado ou link inválido.</div>";
+                document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Imóvel não encontrado.</div>";
                 return;
             }
 
             try {
-                // 1. Busca dados do Imóvel
+                // 1. Busca o imóvel
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/imoveis?id=eq.${id}`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
-                const dados = await res.json();
-                const imovel = dados[0];
+                const imoveis = await res.json();
+                const imovel = imoveis[0];
 
-                if (!imovel) throw new Error("Imóvel não existe no banco.");
-
-                // 2. Busca dados do Corretor
-                const resCorretor = await fetch(`${SUPABASE_URL}/rest/v1/perfis?email=eq.${imovel.corretor_id}`, {
+                // 2. Busca o perfil do corretor vinculado
+                const resC = await fetch(`${SUPABASE_URL}/rest/v1/perfis?email=eq.${imovel.corretor_id}`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
-                const dadosCorretor = await resCorretor.json();
-                const corretor = dadosCorretor[0] || {};
+                const perfis = await resC.json();
+                const corretor = perfis[0] || {};
 
-                // 3. Preenche a página
+                // 3. Preenche os campos
                 document.getElementById("imovel-foto").src = imovel.foto_url;
+                document.getElementById("imovel-foto").style.opacity = "1";
                 document.getElementById("imovel-titulo").innerText = imovel.titulo;
                 document.getElementById("imovel-preco").innerText = imovel.preco;
-                document.getElementById("imovel-area").innerText = imovel.area + (imovel.area.includes('m') ? '' : 'm²');
+                document.getElementById("imovel-area").innerText = imovel.area.toLowerCase().includes('m') ? imovel.area : imovel.area + "m²";
                 document.getElementById("imovel-quartos").innerText = imovel.quartos;
                 document.getElementById("imovel-vagas").innerText = imovel.vagas;
                 document.getElementById("imovel-descricao").innerText = imovel.descricao;
-                document.getElementById("imovel-local").innerText = (corretor.cidade || "Santa Catarina") + " / " + (corretor.estado || "SC");
 
-                // Dados do Corretor no Card
-                document.getElementById("corretor-nome").innerText = corretor.nome || imovel.corretor_nome;
-                document.getElementById("corretor-creci").innerText = `Corretor de Imóveis • CRECI ${corretor.creci || '---'}`;
-                document.getElementById("corretor-whats").innerHTML = `<i class="bi bi-telephone-fill text-blue-200"></i> ${corretor.telefone || imovel.corretor_whats}`;
-                document.getElementById("corretor-email").innerHTML = `<i class="bi bi-envelope-fill text-blue-200"></i> ${corretor.email || imovel.corretor_id}`;
-                
-                // 4. Link do WhatsApp com Mensagem Formatada
-                const whatsFinal = (corretor.telefone || imovel.corretor_whats).replace(/\D/g, '');
-                const urlAtual = window.location.href;
-                
-                // Mensagem com quebras de linha (\n) e negrito (*)
-                const msg = encodeURIComponent(
-                    `Olá! Vi o imóvel "${imovel.titulo}" na sua vitrine.\n\n` +
-                    `📌 *Código:* ID-${imovel.id}\n` +
-                    `🔗 *Link:* ${urlAtual}\n\n` +
-                    `Gostaria de agendar uma visita ou receber mais informações.`
-                );
+                // LOGICA DE LOCALIZAÇÃO (Onde entra o campo bairro que você criou)
+                const bairro = imovel.bairro ? imovel.bairro + " • " : "";
+                const cidade = imovel.cidade || corretor.cidade || "Santa Catarina";
+                const estado = imovel.estado || corretor.estado || "SC";
+                document.getElementById("imovel-local").innerText = `${bairro}${cidade} / ${estado}`;
 
-                document.getElementById("btn-whats-link").href = `https://wa.me/55${whatsFinal}?text=${msg}`;
+                // DADOS DO CORRETOR
+                const nomeC = corretor.nome || imovel.corretor_nome || "Kleiton Falcão";
+                document.getElementById("corretor-nome").innerText = nomeC;
+                document.getElementById("corretor-creci").innerText = `CRECI ${corretor.creci || '---'}`;
+                document.getElementById("corretor-sigla").innerText = gerarSigla(nomeC);
+                document.getElementById("corretor-contatos").innerText = `${corretor.telefone || imovel.corretor_whats} | ${corretor.email || imovel.corretor_id}`;
 
-                // Finaliza carregamento
+                // CONFIGURAÇÃO DO BOTÃO WHATSAPP
+                const whats = (corretor.telefone || imovel.corretor_whats || "").replace(/\D/g, '');
+                const msg = encodeURIComponent(`Olá! Vi o imóvel "${imovel.titulo}" no seu Link Imóvel e gostaria de mais informações.\n\nLink: ${window.location.href}`);
+                document.getElementById("btn-whats-link").href = `https://wa.me/55${whats}?text=${msg}`;
+
+                // MOSTRAR CONTEÚDO
                 document.getElementById("carregando").style.display = "none";
-                document.getElementById("conteudo").style.display = "block";
-                document.title = imovel.titulo;
+                document.getElementById("main-content").style.display = "block";
+                document.title = imovel.titulo + " | Link Imóvel";
 
-            } catch (error) {
-                console.error(error);
-                document.getElementById("carregando").innerHTML = "<div class='p-6 text-center text-red-600 font-bold'>Erro ao carregar o imóvel. Certifique-se que o código está correto.</div>";
+            } catch (e) {
+                console.error(e);
+                document.getElementById("carregando").innerHTML = "<div style='color:red; padding:20px;'>Erro ao carregar os dados. Verifique sua conexão.</div>";
             }
         }
 

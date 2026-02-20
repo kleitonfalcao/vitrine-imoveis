@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleção Exclusiva de Imóveis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --bg-body: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg-body); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-main); 
+            line-height: 1.5;
+        }
+
+        .header { 
+            text-align: center; 
+            padding: 50px 20px; 
+            background: white; 
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 30px; 
+        }
+
+        .header h1 { 
+            margin: 0; 
+            color: var(--primary); 
+            font-size: 28px; 
+            font-weight: 800; 
+            letter-spacing: -0.025em;
+        }
+
+        .header p { 
+            margin: 12px 0 0; 
+            color: var(--text-sub); 
+            font-size: 17px; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto;
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px 50px 20px; 
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+            border: 1px solid #f1f5f9;
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+        }
+
+        .card img { 
+            width: 100%; 
+            height: 230px; 
+            object-fit: cover; 
+            display: block;
+        }
+        
+        /* Badge de fotos elegante */
+        .photo-badge { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            background: rgba(15, 23, 42, 0.8); 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .content { padding: 24px; }
+
+        .price { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--success); 
+            margin-bottom: 8px; 
+        }
+
+        .title { 
+            font-size: 17px; 
+            font-weight: 600; 
+            margin: 0 0 12px 0; 
+            height: 50px; 
+            overflow: hidden; 
+            line-height: 1.4; 
+            color: var(--text-main); 
+        }
+
+        .location { 
+            font-size: 14px; 
+            color: var(--text-sub); 
+            margin-bottom: 24px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+
+        .btn { 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            background: var(--primary); 
+            color: white; 
+            padding: 16px; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            transition: background 0.2s; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+        }
+
+        .btn:hover { background: #1d4ed8; }
+
+        /* Estado de carregamento */
+        #loader {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 100px 0;
+            color: var(--text-sub);
+        }
+
+        @media (max-width: 640px) {
+            .header { padding: 40px 15px; }
+            .header h1 { font-size: 24px; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="nome-corretor">Seleção de Imóveis</h1>
+        <p>Olá! Preparei esta curadoria exclusiva com as melhores oportunidades que encontrei para o seu perfil.</p>
+    </div>
+    
+    <div class="grid" id="grid-container">
+        <div id="loader">
+            <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p>Buscando imóveis selecionados...</p>
+        </div>
+    </div>
+
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+    <script>
+        const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
+
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ids = urlParams.get('ids');
+            const container = document.getElementById("grid-container");
+            
+            if (!ids) {
+                container.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:50px;'><h2>Ops!</h2><p>Nenhum imóvel foi selecionado para esta lista.</p></div>";
+                return;
+            }
+
+            try {
+                // Busca no Supabase apenas os IDs que vieram na URL
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/imoveis?id=in.(${ids})`, {
+                    headers: { 
+                        "apikey": SUPABASE_KEY, 
+                        "Authorization": `Bearer ${SUPABASE_KEY}` 
+                    }
+                });
+                
+                const imoveis = await res.json();
+                container.innerHTML = "";
+
+                if (imoveis.length === 0) {
+                    container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Nenhum imóvel encontrado.</p>";
+                    return;
+                }
+
+                imoveis.forEach(i => {
+                    const totalFotos = (i.fotos && Array.isArray(i.fotos)) ? i.fotos.length : 1;
+                    const precoExibicao = i.preco ? `R$ ${i.preco}` : "Consulte";
+                    
+                    container.innerHTML += `
+                        <div class="card">
+                            <div class="photo-badge">
+                                <i class="bi bi-camera-fill"></i> ${totalFotos.toString().padStart(2, '0')} FOTOS
+                            </div>
+                            <img src="${i.foto_url}" alt="${i.titulo}" onerror="this.src='https://via.placeholder.com/400x300?text=Imagem+Indispon%C3%ADvel'">
+                            <div class="content">
+                                <div class="price">${precoExibicao}</div>
+                                <div class="title">${i.titulo}</div>
+                                <div class="location">
+                                    <i class="bi bi-geo-alt-fill"></i> ${i.bairro || ''} - ${i.cidade || ''}/${i.estado || ''}
+                                </div>
+                                <a href="vitrine.html?id=${i.id}" class="btn">Explorar Imóvel Completo</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error("Erro:", error);
+                container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Ocorreu um erro ao carregar a lista. Tente novamente mais tarde.</p>";
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

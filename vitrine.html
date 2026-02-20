@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Imóvel | Curadoria Exclusiva</title>
 
-    <link rel="icon" type="image/png" href="https://wjdqfutxtvhwdhgyqrqz.supabase.co/storage/v1/object/public/assets/icon128.png">
+    <link rel="icon" type="image/png" href="https://wjdqfutxtvhwdhgy/assets/icon128.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -46,7 +46,7 @@
             text-transform: uppercase;
         }
 
-        /* Hero Image com Zoom Suave */
+        /* --- HERO / CARROSSEL AJUSTADO --- */
         .hero { 
             width: 100%; 
             height: 60vh; 
@@ -54,24 +54,77 @@
             overflow: hidden; 
             position: relative; 
         }
-        #foto-principal { 
+
+        /* Container que segura os slides lado a lado */
+        .slides-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Cada slide individual */
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
             animation: softZoom 20s infinite alternate; 
-            opacity: 0; /* Inicia invisível para o efeito de fade ao carregar */
+            opacity: 1;
             transition: opacity 1s ease-in-out;
         }
+
         @keyframes softZoom { 
             from { transform: scale(1); } 
             to { transform: scale(1.1); } 
         }
 
-        /* Container Principal com espaçamento extra no fundo */
+        /* Botões de Navegação do Carrossel */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            border: none;
+            padding: 20px 15px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 10;
+            transition: 0.3s;
+            display: none; /* Só aparece se tiver + de 1 foto */
+        }
+        .nav-arrow:hover { background: rgba(0,0,0,0.7); }
+        .prev { left: 0; border-radius: 0 4px 4px 0; }
+        .next { right: 0; border-radius: 4px 0 0 4px; }
+
+        /* Contador de Fotos (Ex: 01 / 10) */
+        .photo-counter {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(15, 23, 42, 0.7);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            z-index: 10;
+            display: none;
+        }
+
+        /* --- CONTEÚDO --- */
         .container { 
             max-width: 650px; 
             margin: 0 auto; 
-            padding: 40px 25px 200px 25px; /* 200px de fundo para o card nunca ser cortado pelo botão */
+            padding: 40px 25px 200px 25px; 
         }
 
         .curadoria { 
@@ -148,7 +201,7 @@
             white-space: pre-line; 
         }
 
-        /* --- CARD DO CORRETOR (ESTILO CLASSIC) --- */
+        /* --- CARD DO CORRETOR --- */
         .corretor-card {
             background: #fff; 
             border: 1px solid #f1f5f9; 
@@ -200,7 +253,7 @@
             font-weight: 300; 
         }
 
-        /* --- BOTÃO FIXO (MESMO TOM DO NOME E TÍTULO) --- */
+        /* --- BOTÃO FIXO --- */
         .cta-float {
             position: fixed; 
             bottom: 30px; 
@@ -213,7 +266,7 @@
             text-decoration: none; 
             text-align: center; 
             padding: 22px; 
-            border-radius: 2px; /* Borda reta conforme seu estilo classic */
+            border-radius: 2px; 
             font-size: 11px; 
             font-weight: 600; 
             letter-spacing: 2px; 
@@ -227,7 +280,6 @@
             transform: translateX(-50%) translateY(-2px); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
-        .cta-float:active { transform: translateX(-50%) scale(0.98); }
     </style>
 </head>
 <body>
@@ -237,7 +289,13 @@
     </header>
 
     <div class="hero">
-        <img id="foto-principal" src="" alt="Destaque">
+        <div class="slides-container" id="slides-container">
+            </div>
+        
+        <button class="nav-arrow prev" id="prevBtn">❮</button>
+        <button class="nav-arrow next" id="nextBtn">❯</button>
+        
+        <div class="photo-counter" id="photo-counter">1 / 1</div>
     </div>
 
     <div class="container" id="main-content">
@@ -282,20 +340,17 @@
         const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_P4BgLLoKVHb0gRQ5ytOTwA_J5ELFbZ9";
 
+        let slideAtual = 0;
+        let totalSlides = 0;
+
         async function carregarImovel() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-            if (!id) {
-                console.error("ID do imóvel não fornecido.");
-                return;
-            }
+            if (!id) return;
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/imoveis?id=eq.${id}`, {
-                    headers: { 
-                        "apikey": SUPABASE_KEY, 
-                        "Authorization": `Bearer ${SUPABASE_KEY}` 
-                    }
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
                 
                 const data = await response.json();
@@ -303,55 +358,75 @@
                 if (data && data.length > 0) {
                     const imovel = data[0];
 
-                    // Foto com efeito Fade In
-                    const img = document.getElementById("foto-principal");
-                    img.src = imovel.foto_url;
-                    img.onload = () => img.style.opacity = "1";
+                    // --- LOGICA DO CARROSSEL ---
+                    const container = document.getElementById("slides-container");
+                    const fotos = (imovel.fotos && imovel.fotos.length > 0) ? imovel.fotos : [imovel.foto_url];
+                    totalSlides = fotos.length;
 
-                    // Textos Básicos
+                    container.innerHTML = fotos.map(url => `
+                        <div class="slide">
+                            <img src="${url}" alt="Foto do Imóvel" onerror="this.src='${imovel.foto_url}'">
+                        </div>
+                    `).join('');
+
+                    if (totalSlides > 1) {
+                        document.getElementById("prevBtn").style.display = "block";
+                        document.getElementById("nextBtn").style.display = "block";
+                        document.getElementById("photo-counter").style.display = "block";
+                        atualizarContador();
+                    }
+
+                    // --- PREENCHIMENTO DOS CAMPOS ---
                     document.getElementById("imovel-titulo").innerText = imovel.titulo;
                     document.getElementById("imovel-preco").innerText = imovel.preco;
                     document.getElementById("imovel-descricao").innerText = imovel.descricao;
 
-                    // Área (Mantendo a vírgula e removendo apenas letras/unidades)
-                    // Exemplo: "259,81 m²" vira "259,81"
                     if (imovel.area) {
                         document.getElementById("imovel-area").innerText = imovel.area.replace(/[a-zA-Z\s²]/g, "");
                     }
 
-                    // Quartos e Vagas com 0 à esquerda
                     document.getElementById("imovel-quartos").innerText = imovel.quartos.toString().padStart(2, '0');
                     document.getElementById("imovel-vagas").innerText = imovel.vagas.toString().padStart(2, '0');
 
-                    // Localização (Bairro + Cidade + Estado)
                     const bairroComp = imovel.bairro ? imovel.bairro + " • " : "";
                     document.getElementById("imovel-local").innerText = `${bairroComp}${imovel.cidade}, ${imovel.estado}`;
 
-                    // Dados do Corretor
                     const nomeCompleto = imovel.corretor_nome || "Consultor Exclusivo";
                     document.getElementById("corretor-nome-tag").innerText = nomeCompleto;
                     document.getElementById("corretor-nome-card").innerText = nomeCompleto;
                     document.getElementById("corretor-creci").innerText = `CRECI ${imovel.corretor_creci || '---'}`;
                     document.getElementById("corretor-contato").innerText = `${imovel.corretor_whats} | ${imovel.corretor_id}`;
                     
-                    // Iniciais do Avatar
                     const iniciais = nomeCompleto.split(" ").map(n => n[0]).join("").substring(0,2).toUpperCase();
                     document.getElementById("corretor-sigla").innerText = iniciais;
 
-                    // Configuração do WhatsApp
                     const numLimpo = imovel.corretor_whats.replace(/\D/g, '');
                     const linkWa = `https://wa.me/55${numLimpo}?text=${encodeURIComponent('Olá! Gostaria de um atendimento personalizado para o imóvel: ' + imovel.titulo + '\n\nLink: ' + window.location.href)}`;
                     document.getElementById("btn-whats").href = linkWa;
                 }
-
-            } catch (error) {
-                console.error("Erro crítico ao carregar dados do Supabase:", error);
-            }
+            } catch (error) { console.error("Erro Supabase:", error); }
         }
 
-        // Inicia a carga
+        // --- CONTROLES DO CARROSSEL ---
+        function mudarSlide(passo) {
+            const container = document.getElementById("slides-container");
+            slideAtual += passo;
+
+            if (slideAtual >= totalSlides) slideAtual = 0;
+            if (slideAtual < 0) slideAtual = totalSlides - 1;
+
+            container.style.transform = `translateX(-${slideAtual * 100}%)`;
+            atualizarContador();
+        }
+
+        function atualizarContador() {
+            document.getElementById("photo-counter").innerText = `${(slideAtual + 1).toString().padStart(2, '0')} / ${totalSlides.toString().padStart(2, '0')}`;
+        }
+
+        document.getElementById("prevBtn").onclick = () => mudarSlide(-1);
+        document.getElementById("nextBtn").onclick = () => mudarSlide(1);
+
         window.addEventListener('DOMContentLoaded', carregarImovel);
     </script>
 </body>
 </html>
-

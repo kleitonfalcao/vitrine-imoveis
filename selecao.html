@@ -79,7 +79,6 @@
             display: block;
         }
         
-        /* Badge de fotos elegante */
         .photo-badge { 
             position: absolute; 
             top: 15px; 
@@ -125,7 +124,7 @@
             gap: 6px; 
         }
 
-        .btn { 
+        .btn-explorar { 
             display: flex; 
             align-items: center;
             justify-content: center;
@@ -141,15 +140,64 @@
             letter-spacing: 0.05em;
         }
 
-        .btn:hover { background: #1d4ed8; }
+        /* CARD DE CONTATO FINAL (ESTILO VITRINE) */
+        .footer-contato {
+            max-width: 600px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+        }
 
-        /* Estado de carregamento */
+        .corretor-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .corretor-nome {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 5px 0;
+        }
+
+        .corretor-creci {
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .btn-zap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .btn-zap:hover { transform: scale(1.02); }
+
         #loader {
             grid-column: 1/-1;
             text-align: center;
             padding: 100px 0;
             color: var(--text-sub);
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 640px) {
             .header { padding: 40px 15px; }
@@ -159,8 +207,9 @@
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h1 id="nome-corretor">Seleção de Imóveis</h1>
+        <h1>Seleção de Imóveis</h1>
         <p>Olá! Preparei esta curadoria exclusiva com as melhores oportunidades que encontrei para o seu perfil.</p>
     </div>
     
@@ -171,7 +220,16 @@
         </div>
     </div>
 
-    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    <div class="footer-contato" id="area-contato" style="display: none;">
+        <div class="corretor-card">
+            <span class="corretor-creci" id="exibir-creci">CRECI: ---</span>
+            <h2 class="corretor-nome" id="exibir-nome">Consultor Imobiliário</h2>
+            <p style="color: var(--text-sub); margin-bottom: 25px;">Gostou de algum imóvel? Vamos conversar agora mesmo!</p>
+            <a href="#" id="link-whats" class="btn-zap">
+                <i class="bi bi-whatsapp"></i> FALAR NO WHATSAPP
+            </a>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = "https://wjdqfutxtvhwdhgyqrqz.supabase.co";
@@ -180,7 +238,21 @@
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const ids = urlParams.get('ids');
+            
+            // Dados do Corretor vindos da URL (n=nome, t=telefone, c=creci)
+            const nomeCorretor = urlParams.get('n');
+            const telCorretor = urlParams.get('t');
+            const creciCorretor = urlParams.get('c');
+
             const container = document.getElementById("grid-container");
+            
+            // Preencher Card de Contato se os dados existirem
+            if (nomeCorretor || telCorretor) {
+                document.getElementById("exibir-nome").innerText = nomeCorretor || "Consultor Imobiliário";
+                document.getElementById("exibir-creci").innerText = `CRECI: ${creciCorretor || '---'}`;
+                document.getElementById("link-whats").href = `https://wa.me/55${telCorretor?.replace(/\D/g,'')}`;
+                document.getElementById("area-contato").style.display = "block";
+            }
             
             if (!ids) {
                 container.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:50px;'><h2>Ops!</h2><p>Nenhum imóvel foi selecionado para esta lista.</p></div>";
@@ -188,12 +260,8 @@
             }
 
             try {
-                // Busca no Supabase apenas os IDs que vieram na URL
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/imoveis?id=in.(${ids})`, {
-                    headers: { 
-                        "apikey": SUPABASE_KEY, 
-                        "Authorization": `Bearer ${SUPABASE_KEY}` 
-                    }
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
                 
                 const imoveis = await res.json();
@@ -220,14 +288,14 @@
                                 <div class="location">
                                     <i class="bi bi-geo-alt-fill"></i> ${i.bairro || ''} - ${i.cidade || ''}/${i.estado || ''}
                                 </div>
-                                <a href="vitrine.html?id=${i.id}" class="btn">Explorar Imóvel Completo</a>
+                                <a href="vitrine.html?id=${i.id}" class="btn-explorar">Explorar Imóvel Completo</a>
                             </div>
                         </div>
                     `;
                 });
             } catch (error) {
                 console.error("Erro:", error);
-                container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Ocorreu um erro ao carregar a lista. Tente novamente mais tarde.</p>";
+                container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Ocorreu um erro ao carregar a lista.</p>";
             }
         }
         
